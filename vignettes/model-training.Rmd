@@ -179,5 +179,9 @@ randomForest::varImpPlot(review_rf)
 # Artefact output
 
 ```{r artefact-output}
-devtools::use_data(review_rf, vectoriser, tfidf, pkg = package_root)
+devtools::use_data(review_rf,
+                   vectoriser,
+                   tfidf,
+                   pkg = package_root,
+                   overwrite = TRUE)
 ```
