@@ -9,6 +9,26 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+This package exists to explore an idea I had about creating a machine learning model as an R package. The idea here is that building this vignette is equivalent to training the model, and the functions in this package allow the user to score new data with that model. We'll be creating an extremely simple sentient analysis model based on [review data from the UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Sentiment+Labelled+Sentences).
+
+I thought this might work because of a few things:
+
+* Vignettes are created before source code is bundled, so in theory we can train a model before the package has finished compiling.
+* R uses lazy evaluation, so if a package function refers to an object that doesn't yet exist (because it hasn't been created by the vignette) that's okay.
+* I like using the same functions for model training as I do for model scoring, like the `map_to_dtm` function below.
+* I wanted to take full advantage of `roxygen2` for documenting package functions, and `testthat` for unit tests. I especially like the ease with which you can test within RStudio.
+
+However, I have my doubts:
+
+* In order for tests to work, I have to run `devtools::build_vignettes` before running `devtools::install`. There's something here with namespaces whereby the data objects suddenly become unexported after tests are attempted. I don't know why!
+* There are some relative paths in the code below. We're assuming that the working directory is `<package_root>/vignettes` when this vignette is knitted. As such, we can move up one level to obtain the root directory of the package. This should be okay if we're following the standard package structure, but I've been hurt too many times by relative file paths to feel comfortable about this.
+* I'm not sure how this would operate with the `plumber` package. I don't know if we can integrate the expected `plumber.R` function in the package, except for sticking it in the `inst` directory and then finding it with `system.file`.
+* This all seems like a lot of complexity for not too much benefit. Maybe doing this again would be easier now that I have a template.
+
+No matter what, I think these sorts of projects have to be shared, even if I don't think that this is a major success!
+
+A quick shout out for [the excellent book on R packages by Hadley Wickham](http://r-pkgs.had.co.nz/). It's well worth keeping bookmarked.
+
 ```{r setup, warning = FALSE, message = FALSE}
 library(dplyr)
 library(ggplot2)
@@ -24,7 +44,9 @@ devtools::load_all(package_root)
 
 # Data load
 
-## Download data
+I haven't kept the data in this git repository, opting instead to download it if it doesn't already exist. It's a fairly small data set though (3000 rows).
+
+`download_data` is a package function that downloads and unzips the source data into the `inst/extdata` directory (creating it if necessary). On package compilation, everything in the `inst` folder is moved up to the root directory of the package, and so we can find the `extdata` directory in the finished product.
 
 ```{r download-data}
 extdata <- file.path(package_root, "inst", "extdata")
@@ -35,6 +57,10 @@ if (!dir.exists(file.path(extdata, "sentiment labelled sentences"))) {
   download_data(data_source_url, extdata)
 }
 ```
+
+Data is loaded in with another custom function, `read_review_file`. This is just `readr::read_tsv` with some special options to cover the pecularities of the raw data. All of these custom functions are documented and stored in the `R` directory. Once the package is installed, function manuals can be called in the usual way (eg. `?read_review_file`).
+
+This is a simple analysis, so let's just stick to discrete categories for sentiment: "good" and "bad". I don't care too much about how the model performs, as long as it functions.
 
 ```{r load-data}
 data_files <- c("amazon_cells_labelled.txt",
@@ -58,6 +84,8 @@ We check for missing data using the `naniar` package:
 reviews %>% naniar::miss_var_summary()
 ```
 
+Let's take a look at which words are the most frequent. First we create a data frame such that each row is an occurrence of a word. Note that we remove stop words --- these are words like "the" that are common and usually provide little semantic content to the text.
+
 ```{r words}
 words <- reviews %>% 
   tidytext::unnest_tokens(
@@ -68,9 +96,12 @@ words <- reviews %>%
     tidytext::stop_words, 
     by = "word"
   )
+words %>% head
 ```
 
-```{r word_frequency}
+Now we'll plot the mosst frequently occurring words, keeping a note of which words are "good" and which words are "bad".
+
+```{r word_frequency, fig.width = 6, fig.height = 6, out.height = 600, out.width = 600}
 words %>%
   count(word, sentiment, sort = TRUE) %>%
   head(20) %>%
@@ -86,6 +117,7 @@ words %>%
   ggtitle("Frequency of words")
 ```
 
+There are no surprises here! "Bad" is universally bad and "love" is universally good. It's comforting to see. We'll note this and use these words in our unit tests.
 
 I'm not sure what purpose word clouds serve, but they seem almost mandatory.
 
@@ -103,18 +135,22 @@ words %>%
 
 
 # Preprocessing
-## Tokenising
 
+We need to apply some preprocessing to our text before we can feed it into a model. The first round of preprocessing is simply ignoring case, punctuation and numbers:
 
-```{r stem-tokeniser}
-stem_tokeniser
+```{r text-preprocessor}
+text_preprocessor
 ```
+
+I'm actually not sure that we *should* be removing numbers here. We're dealing with reviews, after all, and a review like "10/10" certainly tells us something about sentiment. But that's beyond the scope of this package.
+
+The next round of processing involves tokenising our words. This is a process of stripping words down to their base. Another custom function, `stem_tokeniser` plays this role, by calling on the Porter stemming algorithm:
 
 ```{r stem-tokeniser-example}
 stem_tokeniser("information informed informing informs")
 ```
 
-## Creating a vocabulary
+Now we'll define our vocabulary. The vocabulary is the domain of the problem --- the words that will go into the model as features. Dimensionality is an issue here, we''ll prune our vocabulary to include only words that occur a minimum number of times. The vocabulary is subject to *domain shift* --- if an incoming piece of text contains a word that isn't in the vocabulary, it will be ignored by the model.
 
 We're going to insist that every word in the vocabulary appears in at least 25 of the reviews.
 
@@ -124,15 +160,47 @@ vocabulary <- create_vocabulary(reviews$review,
 vocabulary
 ```
 
+Finally, we'll create a vectoriser using the `text2vec` package. This allows us to map new text onto the vocabulary we've just created.
+
+Actually, much of what you see here uses the `text2vec` package. I'm fond of this package because it's designed with the idea that you may need to score new data that comes in after you've trained your model, so always need to be able to process new text!
+
 ```{r vectoriser}
 vectoriser <- vocabulary %>% text2vec::vocab_vectorizer()
 ```
 
-## Creating a document term matrix
+One quick note, though: the `itoken` function in this package creates an iterator of tokens. It can be called like this:
+
+```{r itoken-example-1, eval = FALSE}
+tokens <- text2vec::itoken(
+  unprocessed_text, 
+  preprocessor = text_preprocessor, 
+  tokenizer = stem_tokeniser,
+  progressbar = FALSE
+)
+```
+
+However, I had great trouble with this method, with words not being properly tokenised before making it into the vectoriser. So I've done this instead:
+
+```{r itoken-example-2, eval = FALSE}
+processed_text <- stem_tokeniser(text_preprocessor(unprocessed_text))
+
+text2vec::itoken(
+  processed_text, 
+  progressbar = FALSE
+)
+```
+
+I would have thought that the two pieces of code were equivalent, but my unit tests fail with the first example. I'm putting this here as an unknown!
+
+Creating a document term matrix
+
+The input for our model algorithm is a *document term matrix*. This is a matrix in which every row represents one of our 3000 reviews, and every column uses one of the `r length(vocabulary$term)` terms in our vocabulary. We use the `map_to_dtm` function which allows us to map raw text onto a new dtm.
 
 ```{r map-to-dtm}
 map_to_dtm
 ```
+
+You'll notice that `tfidf` argument. This stands for *term frequency inverse document frequency*. Informally, we want to weight every word as more important if it occurs often, and less important if it occurs in many documents. This is exactly what `tfidf` does. Let's start with an unweighted matrix so we can see the effect.
 
 ```{r dtm-unweighted}
 dtm_unweighted <- map_to_dtm(reviews$review,
@@ -148,17 +216,22 @@ paste0('> ', reviews$review[3000]) %>% cat
 tail(as.matrix(dtm_unweighted)[3000,], 21)
 ```
 
-## Term frequency inverse document frequency
+Now we fit our `tfidf`. Be careful here: `fit_transform` is a method which says "use this data to define the `tfidf`, and then transform the input by that `tfidf`. This is distinct from `transform` which says "use a `tfidf` that's already been fitted to transform this data". This terminology is more familiar to Python users than it is to R users, and I occasionally see it tripping people up (especially on Kaggle). The rule of thumb is that you use `fit_transform` for your training data and `transform` for your test data, or any new data that you encounter.
+
 ```{r tfidf-fit-transform}
 tfidf <- text2vec::TfIdf$new()
 dtm_tf_idf <- tfidf$fit_transform(dtm_unweighted)
 ```
+
+Let's take the same example before, but now with a weighted document term matrix:
 
 ```{r dtm-tfidf-example-after}
 tail(as.matrix(dtm_tf_idf)[3000,], 21)
 ```
 
 # Training a random forest
+
+With all of the effort we put into preprocessing, the model training step is relatively straightforward! Document term matrices are stored as a special class of *sparse* matrix, because there are computational techniques to efficiently store and use matrices in which the vast majority of entries are 0. However, this format isn't accepted by the `randomForest` algorithm. Fortunately, with only 3000 rows and `r length(vocabulary$term)` columns, we don't have to worry too much about computational efficiency.
 
 ```{r review-rf}
 review_rf <- randomForest::randomForest(
@@ -167,6 +240,8 @@ review_rf <- randomForest::randomForest(
   ntree = 500
 )
 ```
+
+While I don't want to invest much time in the model itself, we can at least look at how it performs, and which terms it considers the most important:
 
 ```{r review-rf-print}
 review_rf
@@ -177,6 +252,8 @@ randomForest::varImpPlot(review_rf)
 ```
 
 # Artefact output
+
+Now we recall that we're actually creating a package. We want all of the work that we've done so far to be included in the final result. Fortunately, our custom functions are in the `R` directory, so they'll persist when the package is compiled. We need three other objects (all relating to our trained model) to be available as well: our random forest `review_rf`, our `vectoriser`, and the `tfidf` we used to weight our training data (and will reuse for new data). These are all (sparsely) documented with their own entries in the `R` directory.
 
 ```{r artefact-output}
 usethis::use_data(review_rf,
