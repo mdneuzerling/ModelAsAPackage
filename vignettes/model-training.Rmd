@@ -135,7 +135,9 @@ map_to_dtm
 ```
 
 ```{r dtm-unweighted}
-dtm_unweighted <- map_to_dtm(reviews$review, vectoriser)
+dtm_unweighted <- map_to_dtm(reviews$review,
+                             vectoriser = vectoriser,
+                             tfidf = NULL)
 ```
 
 ```{r dtm-example-before, results = 'asis'}

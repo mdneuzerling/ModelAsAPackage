@@ -21,7 +21,9 @@
 #' @import text2vec
 #' @export
 #'
-map_to_dtm <- function(x, vectoriser, tfidf = NULL) {
+map_to_dtm <- function(x,
+                       vectoriser = ModelAsAPackage::vectoriser,
+                       tfidf = ModelAsAPackage::tfidf) {
   processed_text <- stem_tokeniser(text_preprocessor(x))
 
   # For some reason, the preprocessor and stem_tokeniser don't take effect if
