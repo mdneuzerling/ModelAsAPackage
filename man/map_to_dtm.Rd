@@ -4,8 +4,11 @@
 \alias{map_to_dtm}
 \title{Create a document term matrix using a vectoriser}
 \usage{
-map_to_dtm(x, vectoriser = ModelAsAPackage::vectoriser,
-  tfidf = ModelAsAPackage::tfidf)
+map_to_dtm(
+  x,
+  vectoriser = ModelAsAPackage::vectoriser,
+  tfidf = ModelAsAPackage::tfidf
+)
 }
 \arguments{
 \item{x}{A character or vector of characters, usually sentences, paragraphs
