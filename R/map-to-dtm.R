@@ -22,7 +22,7 @@
 #' @export
 #'
 map_to_dtm <- function(x, vectoriser, tfidf = NULL) {
-  processed_text <- x %>% text_preprocessor %>% stem_tokeniser
+  processed_text <- stem_tokeniser(text_preprocessor(x))
 
   # For some reason, the preprocessor and stem_tokeniser don't take effect if
   # I put them in the itoken function as values to the relevant arguments.
