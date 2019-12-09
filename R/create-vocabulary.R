@@ -24,11 +24,14 @@
 create_vocabulary <- function(documents,
                               doc_proportion_min = 0,
                               doc_proportion_max = 1) {
+  # For some reason, the preprocessor and stem_tokeniser don't take effect if
+  # I put them in the itoken function as values to the relevant arguments.
+  # Please let me know if you understand why this is!
+  processed_documents <- stem_tokeniser(text_preprocessor(documents))
+
   # Warning: token iterators can only be used once.
   token_iterator <- text2vec::itoken(
-    documents,
-    preprocessor = text_preprocessor,
-    tokeniser = stem_tokeniser,
+    processed_documents,
     progressbar = FALSE
   )
 
