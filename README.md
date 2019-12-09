@@ -15,7 +15,7 @@ However, I have my doubts:
 
 * In order for tests to work, I have to run `devtools::build_vignettes` before running `devtools::install`. There's something here with namespaces whereby the data objects suddenly become "unexported" after tests are attempted. I don't know why!
 * There are some relative paths in the code. I'm assuming that the working directory is `<package_root>/vignettes` when this vignette is knitted, so I can move up one level to obtain the root directory of the package. This should be okay if we're following the standard package structure, but I've been hurt too many times by relative file paths to feel comfortable about this.
-* I'm not sure how this would operate with the `plumber` package. I don't know if we can integrate the expected `plumber.R` function in the package, except for sticking it in the `inst` directory and then finding it with `system.file`.
+* I'm not sure how this would operate with the `plumber` package. I don't know how we can integrate the expected `plumber.R` file in the package, except for sticking it in the `inst` directory and then finding it with `system.file`.
 * This all seems like a lot of complexity for not too much benefit. Maybe doing this again would be easier now that I have a template.
 
 No matter what, I think these sorts of projects have to be shared, even if I don't think that this is a major success!
