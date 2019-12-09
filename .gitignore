@@ -7,3 +7,5 @@ inst/extdata
 data
 vignettes/*.html
 vignettes/*.pdf
+doc
+Meta
