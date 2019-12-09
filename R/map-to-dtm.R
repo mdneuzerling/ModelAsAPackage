@@ -40,7 +40,7 @@ map_to_dtm <- function(x, vectoriser, tfidf = NULL) {
   )
 
   if (!is.null(tfidf)) {
-    tfidf$transform(dtm)
+    dtm <- tfidf$transform(dtm)
   }
 
   return(dtm)
