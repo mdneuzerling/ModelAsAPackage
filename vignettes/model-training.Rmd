@@ -1,0 +1,187 @@
+---
+title: "Model training"
+author: "David Neuzerling"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Model training}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, warning = FALSE, message = FALSE}
+library(dplyr)
+library(ggplot2)
+library(text2vec)
+library(tidytext)
+library(randomForest)
+
+knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
+
+package_root <- dirname(getwd()) # dirname moves up a directory
+devtools::load_all(package_root)
+```
+
+# Data load
+
+## Download data
+
+```{r download-data}
+extdata <- file.path(package_root, "inst", "extdata")
+if (!dir.exists(file.path(extdata, "sentiment labelled sentences"))) {
+  data_source_url <- paste0("https://archive.ics.uci.edu",
+                            "/ml/machine-learning-databases/00331",
+                            "/sentiment%20labelled%20sentences.zip")
+  download_data(data_source_url, extdata)
+}
+```
+
+```{r load-data}
+data_files <- c("amazon_cells_labelled.txt",
+                "imdb_labelled.txt",
+                "yelp_labelled.txt") %>% 
+  file.path(extdata, "sentiment labelled sentences", .)
+reviews <- data_files %>% 
+  purrr::map(read_review_file) %>%
+  purrr::reduce(rbind) %>% 
+  mutate(
+    sentiment = ifelse(sentiment == 1, "good", "bad")
+  )
+reviews %>% head
+```
+
+# Exploring data
+
+We check for missing data using the `naniar` package:
+
+```{r naniar}
+reviews %>% naniar::miss_var_summary()
+```
+
+```{r words}
+words <- reviews %>% 
+  tidytext::unnest_tokens(
+    word, 
+    review
+  ) %>% 
+  anti_join(
+    tidytext::stop_words, 
+    by = "word"
+  )
+```
+
+```{r word_frequency}
+words %>%
+  count(word, sentiment, sort = TRUE) %>%
+  head(20) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_col() + 
+  # scale_fill_manual(
+  #   values = wine_plot_colours
+  # ) +
+  xlab(NULL) +
+  theme(text = element_text(size = 16)) +
+  coord_flip() +
+  ggtitle("Frequency of words")
+```
+
+
+I'm not sure what purpose word clouds serve, but they seem almost mandatory.
+
+```{r word_cloud, fig.width = 6, fig.height = 6, out.height = 600, out.width = 600}
+words %>%
+  count(word) %>%
+  with(
+    wordcloud::wordcloud(
+      word, 
+      n, 
+      max.words = 100
+    )
+  )
+```
+
+
+# Preprocessing
+## Tokenising
+
+
+```{r stem-tokeniser}
+stem_tokeniser
+```
+
+```{r stem-tokeniser-example}
+stem_tokeniser("information informed informing informs")
+```
+
+## Creating a vocabulary
+
+We're going to insist that every word in the vocabulary appears in at least 25 of the reviews.
+
+```{r vocabulary}
+vocabulary <- create_vocabulary(reviews$review,
+                                doc_proportion_min = 25 / nrow(reviews))
+vocabulary
+```
+
+```{r vectoriser}
+vectoriser <- vocabulary %>% text2vec::vocab_vectorizer()
+```
+
+## Creating a document term matrix
+
+```{r map-to-dtm}
+map_to_dtm
+```
+
+```{r dtm-unweighted}
+dtm_unweighted <- map_to_dtm(reviews$review, vectoriser)
+```
+
+```{r dtm-example-before, results = 'asis'}
+paste0('> ', reviews$review[3000]) %>% cat
+```
+
+```{r dtm-example-after}
+tail(as.matrix(dtm_unweighted)[3000,], 21)
+```
+
+## Term frequency inverse document frequency
+```{r tfidf-fit-transform}
+tfidf <- text2vec::TfIdf$new()
+dtm_tf_idf <- tfidf$fit_transform(dtm_unweighted)
+```
+
+```{r dtm-tfidf-example-after}
+tail(as.matrix(dtm_tf_idf)[3000,], 21)
+```
+
+# Training a random forest
+
+```{r review-rf}
+review_rf <- randomForest::randomForest(
+  x = as.matrix(dtm_tf_idf),
+  y = factor(reviews$sentiment),
+  ntree = 500
+)
+```
+
+```{r review-rf-print}
+review_rf
+```
+
+```{r review-rf-var-imp-plot, fig.width = 6, fig.height = 6, out.height = 600, out.width = 600}
+randomForest::varImpPlot(review_rf)
+```
+
+# Artefact output
+
+```{r artefact-output, eval = FALSE}
+artefact_path <- file.path(package_root, "inst", "artefacts")
+create_directory_if_it_doesnt_exist(artifact_path)
+
+# Will overwrite exported files by default
+readr::write_rds(rf, file.path(artefact_path, "rf.rds"))
+readr::write_rds(vectoriser, file.path(artefact_path, "vectoriser.rds"))
+readr::write_rds(tfidf, file.path(artefact_path, "tfidf.rds"))
+```

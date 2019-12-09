@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+inst/doc
+inst/extdata
+inst/artefacts
+vignettes/*.html
+vignettes/*.pdf
