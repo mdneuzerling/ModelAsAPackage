@@ -11,8 +11,10 @@
 #' @param x A character or vector of characters, usually sentences, paragraphs
 #' or similar pieces of natural language.
 #' @param vectoriser A vectoriser constructed with the text2vec package.
-#' @param tfidf Optional. A tfidf object constructed with the text2vec package.
-#' If no tfidf is provided, then an unweighted document term matrix will be
+#' By default, the vectoriser from the built package will be used.
+#' @param tfidf A tfidf object constructed with the text2vec package.
+#' By default, the tfidf from the built package will be used.
+#' If no tfidf is NULL, then an unweighted document term matrix will be
 #' returned.
 #' @return A document-term matrix with rows representing the textual objects in
 #' x, and columns representing the tokens in the vocabulary used to generate the

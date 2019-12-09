@@ -4,16 +4,19 @@
 \alias{map_to_dtm}
 \title{Create a document term matrix using a vectoriser}
 \usage{
-map_to_dtm(x, vectoriser, tfidf = NULL)
+map_to_dtm(x, vectoriser = ModelAsAPackage::vectoriser,
+  tfidf = ModelAsAPackage::tfidf)
 }
 \arguments{
 \item{x}{A character or vector of characters, usually sentences, paragraphs
 or similar pieces of natural language.}
 
-\item{vectoriser}{A vectoriser constructed with the text2vec package.}
+\item{vectoriser}{A vectoriser constructed with the text2vec package.
+By default, the vectoriser from the built package will be used.}
 
-\item{tfidf}{Optional. A tfidf object constructed with the text2vec package.
-If no tfidf is provided, then an unweighted document term matrix will be
+\item{tfidf}{A tfidf object constructed with the text2vec package.
+By default, the tfidf from the built package will be used.
+If no tfidf is NULL, then an unweighted document term matrix will be
 returned.}
 }
 \value{
