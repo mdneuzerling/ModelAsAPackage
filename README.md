@@ -1,6 +1,8 @@
 This package exists to explore an idea I had about creating a machine learning model as an R package. The idea here is that building this vignette is equivalent to training the model, and the functions in this package allow the user to score new data with that model. We'll be creating an extremely simple sentient analysis model based on [review data from the UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Sentiment+Labelled+Sentences).
 
-You can install this package with `devtools::install_github("mdneuzerling/ModelAsAPackage")`. The package can be loaded with `library(ModelAsAPackage)` and the training vignette with `vignette("model-training", package = "ModelAsAPackage")`.
+You can install this package with `devtools::install_github("mdneuzerling/ModelAsAPackage", build_vignettes = TRUE)`. The package can be loaded and attached with `library(ModelAsAPackage)` and the training vignette opened with `vignette("model-training", package = "ModelAsAPackage")`.
+
+Want to see the (not-so-great) model score some text? Try giving an argument to the `sentiment` function. I'm happy to report that `sentiment(love) == "good"`.
 
 I thought this might work because of a few things:
 
