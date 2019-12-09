@@ -176,12 +176,6 @@ randomForest::varImpPlot(review_rf)
 
 # Artefact output
 
-```{r artefact-output, eval = FALSE}
-artefact_path <- file.path(package_root, "inst", "artefacts")
-create_directory_if_it_doesnt_exist(artifact_path)
-
-# Will overwrite exported files by default
-readr::write_rds(rf, file.path(artefact_path, "rf.rds"))
-readr::write_rds(vectoriser, file.path(artefact_path, "vectoriser.rds"))
-readr::write_rds(tfidf, file.path(artefact_path, "tfidf.rds"))
+```{r artefact-output}
+devtools::use_data(review_rf, vectoriser, tfidf, pkg = package_root)
 ```

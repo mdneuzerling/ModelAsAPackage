@@ -4,6 +4,6 @@
 .Ruserdata
 inst/doc
 inst/extdata
-inst/artefacts
+data
 vignettes/*.html
 vignettes/*.pdf
