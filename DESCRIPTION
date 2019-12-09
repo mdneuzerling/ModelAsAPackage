@@ -12,6 +12,7 @@ Imports:
     purrr,
     ggplot2,
     text2vec,
+    tm,
     tidytext,
     SnowballC,
     wordcloud,
