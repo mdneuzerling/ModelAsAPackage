@@ -1,3 +1,7 @@
+<!-- badges: start -->
+[![R build status](https://github.com/mdneuzerling/ModelAsAPackage/workflows/R-CMD-check/badge.svg)](https://github.com/mdneuzerling/ModelAsAPackage)
+<!-- badges: end -->
+
 This package exists to explore the concept of creating a machine learning model as an R package, similar to the established concept of an analysis as an R package. The idea here is that, using vignettes, we can train the model by installing the package. The functions in the package then allow the user to score new data with the trained model. To demonstrate this I've created an extremely simple sentiment analysis model based on [review data from the UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Sentiment+Labelled+Sentences).
 
 You can install this package with `devtools::install_github("mdneuzerling/ModelAsAPackage", build_vignettes = TRUE)`. The package can be loaded and attached with `library(ModelAsAPackage)` and the training vignette opened with `vignette("model-training", package = "ModelAsAPackage")`.

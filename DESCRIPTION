@@ -28,3 +28,5 @@ Suggests:
     rmarkdown,
     testthat (>= 2.1.0)
 VignetteBuilder: knitr
+URL: https://github.com/mdneuzerling/ModelAsAPackage
+BugReports: https://github.com/mdneuzerling/ModelAsAPackage/issues
