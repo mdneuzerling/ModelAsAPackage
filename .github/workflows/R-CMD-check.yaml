@@ -10,8 +10,6 @@ jobs:
       - uses: r-lib/actions/setup-r@master
         with:
             r-version: '3.6.1'
-      - name: tree
-        run: tree
       - name: Install renv and rcmdcheck
         run: Rscript -e "install.packages(c('renv', 'rcmdcheck'))"
       - name: Check
