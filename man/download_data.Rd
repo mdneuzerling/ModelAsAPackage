@@ -11,10 +11,7 @@ download_data(url, save_location = getwd())
 
 \item{save_location}{character. The contents of the downloaded zip file will
 be uncompressed and saved here. If save_location does not exist, it will be
-created, as well as any missing parent directories.
-
-importFrom("stats", "predict")
-importFrom("utils", "download.file", "unzip")}
+created, as well as any missing parent directories.}
 }
 \description{
 Given the URL of a .zip file, this function will download it and decompress

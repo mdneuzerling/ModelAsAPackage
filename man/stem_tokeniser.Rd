@@ -16,3 +16,7 @@ A vector of tokens
 \description{
 Stem and tokenise a sentence
 }
+\examples{
+stem_tokeniser("information informed informing informs")
+
+}

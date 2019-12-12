@@ -2,7 +2,8 @@
 #'
 #' @param x Text to be classified, ideally a one-sentence product review.
 #'
-#' @importFrom("stats", "predict")
+#' @importFrom "stats" "predict"
+#' @importFrom "randomForest" "randomForest"
 #' @export
 #'
 sentiment <- function(x) {
