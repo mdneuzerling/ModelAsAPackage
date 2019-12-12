@@ -13,6 +13,7 @@
 #' be uncompressed and saved here. If save_location does not exist, it will be
 #' created, as well as any missing parent directories.
 #'
+#' importFrom("utils", "download.file", "unzip")
 #' @export
 #'
 download_data <- function(url, save_location = getwd()) {
