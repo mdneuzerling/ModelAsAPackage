@@ -13,4 +13,4 @@ jobs:
       - name: Install renv and rcmdcheck
         run: Rscript -e "install.packages(c('renv', 'rcmdcheck'))"
       - name: Check
-        run: Rscript -e "renv::restore;rcmdcheck::rcmdcheck(args = '--no-manual', error_on = 'error')"
+        run: Rscript -e "renv::restore();rcmdcheck::rcmdcheck(args = '--no-manual', error_on = 'error')"
