@@ -8,7 +8,7 @@
 #' @import SnowballC
 #' @export
 #'
-#' @example stem_tokeniser("information informed informing informs")
+#' @examples stem_tokeniser("information informed informing informs")
 #'
 stem_tokeniser <- function(x) {
   lapply(
