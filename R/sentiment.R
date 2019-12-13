@@ -1,5 +1,6 @@
 #' Classify a review as good or bad
 #'
+#'
 #' @param x Text to be classified, ideally a one-sentence product review.
 #'
 #' @importFrom "stats" "predict"
