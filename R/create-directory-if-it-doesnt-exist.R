@@ -8,7 +8,5 @@
 #' @export
 #'
 create_directory_if_it_doesnt_exist <- function(dir_path) {
-  if (!dir.exists(dir_path)) {
-    dir.create(dir_path, recursive = TRUE)
-  }
+
 }

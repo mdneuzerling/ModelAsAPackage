@@ -50,11 +50,11 @@ I haven't kept the data in this git repository, opting instead to download it if
 
 ```{r download-data}
 extdata <- file.path(package_root, "inst", "extdata")
-if (!dir.exists(file.path(extdata, "sentiment labelled sentences"))) {
-  data_source_url <- paste0("https://archive.ics.uci.edu",
-                            "/ml/machine-learning-databases/00331",
-                            "/sentiment%20labelled%20sentences.zip")
-  download_data(data_source_url, extdata)
+data_files <- c("amazon_cells_labelled.txt",
+                "imdb_labelled.txt",
+                "yelp_labelled.txt") %>% file.path(extdata, .)
+if (!all(file.exists(data_files))) {
+  download_data(extdata)
 }
 ```
 
@@ -63,16 +63,10 @@ Data is loaded in with another custom function, `read_review_file`. This is just
 This is a simple analysis, so let's just stick to discrete categories for sentiment: "good" and "bad". I don't care too much about how the model performs, as long as it functions.
 
 ```{r load-data}
-data_files <- c("amazon_cells_labelled.txt",
-                "imdb_labelled.txt",
-                "yelp_labelled.txt") %>% 
-  file.path(extdata, "sentiment labelled sentences", .)
 reviews <- data_files %>% 
   purrr::map(read_review_file) %>%
   purrr::reduce(rbind) %>% 
-  mutate(
-    sentiment = ifelse(sentiment == 1, "good", "bad")
-  )
+  mutate(sentiment = ifelse(sentiment == 1, "good", "bad"))
 reviews %>% head
 ```
 

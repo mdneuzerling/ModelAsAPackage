@@ -17,12 +17,23 @@
 #' @importFrom "utils" "unzip"
 #' @export
 #'
-download_data <- function(url, save_location = getwd()) {
+download_data <- function(save_location = getwd()) {
+  data_source_url <- paste0("https://archive.ics.uci.edu",
+                            "/ml/machine-learning-databases/00331",
+                            "/sentiment%20labelled%20sentences.zip")
+
   zip_file <- tempfile()
   on.exit(unlink(zip_file))
-  download.file(url, zip_file)
+  download.file(data_source_url, zip_file)
 
-  create_directory_if_it_doesnt_exist(save_location)
+  if (!dir.exists(save_location)) {
+      dir.create(save_location, recursive = TRUE)
+  }
 
-  unzip(zip_file, exdir = save_location)
+  data_files <- file.path("sentiment labelled sentences",
+                          c("amazon_cells_labelled.txt",
+                            "imdb_labelled.txt",
+                            "yelp_labelled.txt"))
+
+  unzip(zip_file, files = data_files, junkpaths = TRUE, exdir = save_location)
 }
