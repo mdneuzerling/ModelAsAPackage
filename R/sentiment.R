@@ -8,5 +8,5 @@
 #'
 sentiment <- function(x) {
   processed <- map_to_dtm(x)
-  as.character(predict(ModelAsAPackage::review_rf, processed))
+  as.character(predict(review_rf, processed))
 }
