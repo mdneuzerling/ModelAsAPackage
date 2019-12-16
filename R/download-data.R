@@ -8,7 +8,6 @@
 #' It is not a general function to download arbitrary data, but may be a
 #' useful template.
 #'
-#' @param url character. A URL of the location of the data
 #' @param save_location character. The contents of the downloaded zip file will
 #' be uncompressed and saved here. If save_location does not exist, it will be
 #' created, as well as any missing parent directories.
