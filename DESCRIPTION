@@ -5,6 +5,8 @@ Version: 0.1.0
 Author: David Neuzerling (@mdneuzerling)
 Maintainer: David Neuzerling <mdneuzerling@email.hidden>
 Description: A concept that incorporates model training and execution within a single package.
+Depends: 
+    R (>= 3.4.0)
 Imports:
     devtools,
     usethis,
