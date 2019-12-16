@@ -250,9 +250,12 @@ randomForest::varImpPlot(review_rf)
 Now we recall that we're actually creating a package. We want all of the work that we've done so far to be included in the final result. Fortunately, our custom functions are in the `R` directory, so they'll persist when the package is compiled. We need three other objects (all relating to our trained model) to be available as well: our random forest `review_rf`, our `vectoriser`, and the `tfidf` we used to weight our training data (and will reuse for new data). These are all (sparsely) documented with their own entries in the `R` directory.
 
 ```{r artefact-output, results = "hide", message = FALSE}
-usethis::use_data(review_rf,
-                  vectoriser,
-                  tfidf,
-                  pkg = package_root,
-                  overwrite = TRUE)
+withr::with_dir(package_root,
+  usethis::use_data(
+    review_rf,
+    vectoriser,
+    tfidf,
+    overwrite = TRUE 
+  )
+)
 ```
