@@ -27,8 +27,8 @@ test_that("DTM correctly represents present and absent words", {
 })
 
 test_that("DTM is applying weightings", {
-  expect_true(dtm_unweighted[1, "movi"] > 0)
-  expect_false(is.integer(dtm_unweighted[1, "movi"]))
-  expect_true(dtm_unweighted[2, "phone"] > 0)
-  expect_false(is.integer(dtm_unweighted[2, "phone"]))
+  expect_true(dtm_weighted[1, "movi"] > 0)
+  expect_false(dtm_weighted[1, "movi"] == 1)
+  expect_true(dtm_weighted[2, "phone"] > 0)
+  expect_false(dtm_weighted[2, "phone"] == 1)
 })
