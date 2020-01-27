@@ -6,7 +6,6 @@
 #'
 #' @param file_path character. A file path to a source .txt data file
 #'
-#' @import readr
 #' @export
 #'
 read_review_file <- function(file_path) {

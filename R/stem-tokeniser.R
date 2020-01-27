@@ -4,8 +4,6 @@
 #' or similar pieces of natural language.
 #' @return A vector of tokens
 #'
-#' @import text2vec
-#' @import SnowballC
 #' @export
 #'
 #' @examples stem_tokeniser("information informed informing informs")

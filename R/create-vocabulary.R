@@ -17,8 +17,6 @@
 #' included in the vocabulary. Defaults to 1 (no effect).
 #' @return A vocabulary object used in the text2vec package
 #'
-#' @import text2vec
-#' @import tidytext
 #' @export
 #'
 create_vocabulary <- function(documents,

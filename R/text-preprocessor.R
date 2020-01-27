@@ -11,8 +11,7 @@
 #' @param x Character. Text to be processed.
 #' @return The same character after processing.
 #'
-#' @import dplyr
-#' @import tm
+#' @importFrom dplyr %>%
 #' @export
 #'
 

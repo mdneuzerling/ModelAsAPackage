@@ -12,8 +12,6 @@
 #' be uncompressed and saved here. If save_location does not exist, it will be
 #' created, as well as any missing parent directories.
 #'
-#' @importFrom "utils" "download.file"
-#' @importFrom "utils" "unzip"
 #' @export
 #'
 download_data <- function(save_location = getwd()) {
@@ -23,7 +21,7 @@ download_data <- function(save_location = getwd()) {
 
   zip_file <- tempfile()
   on.exit(unlink(zip_file))
-  download.file(data_source_url, zip_file)
+  utils::download.file(data_source_url, zip_file)
 
   if (!dir.exists(save_location)) {
       dir.create(save_location, recursive = TRUE)
@@ -34,5 +32,5 @@ download_data <- function(save_location = getwd()) {
                             "imdb_labelled.txt",
                             "yelp_labelled.txt"))
 
-  unzip(zip_file, files = data_files, junkpaths = TRUE, exdir = save_location)
+  utils::unzip(zip_file, files = data_files, junkpaths = TRUE, exdir = save_location)
 }

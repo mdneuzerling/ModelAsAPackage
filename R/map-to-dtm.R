@@ -20,7 +20,6 @@
 #' x, and columns representing the tokens in the vocabulary used to generate the
 #' given vectoriser.
 #'
-#' @import text2vec
 #' @export
 #'
 map_to_dtm <- function(x,
