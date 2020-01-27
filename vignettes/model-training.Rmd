@@ -38,7 +38,7 @@ library(randomForest)
 
 knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
 
-package_root <- dirname(getwd()) # dirname moves up a directory
+package_root <- here::here()
 devtools::load_all(package_root)
 ```
 
