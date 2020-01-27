@@ -2,6 +2,7 @@
 #'
 #' @param x Text to be classified, ideally a one-sentence product review.
 #'
+#' @importFrom randomForest randomForest
 #' @export
 #'
 sentiment <- function(x) {
